@@ -1,23 +1,50 @@
+// server.js
 const http = require('http');
 const fs = require('fs');
-
-// Simple math operation
-const mathResult = 543 + 5;
+const url = require('url');
 
 const server = http.createServer((req, res) => {
-  if (req.url === '/') {
-    // Send the HTML file
-    fs.readFile('index.html', (err, data) => {
-      res.writeHead(200, {'Content-Type': 'text/html'});
+
+  // Allow CORS for requests from your frontend (or use specific origin instead of '*')
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+  // handle preflight
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204);
+    return res.end();
+  }
+
+  if (req.url && req.url.startsWith('/calc')) {
+    const query = url.parse(req.url, true).query;
+    const n1 = Number(query.n1) || 0;
+    const n2 = Number(query.n2) || 0;
+
+    const result = n1 + n2;
+
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    return res.end(result.toString());
+  }
+
+  if (req.url === "/" || req.url === "/index.html") {
+    fs.readFile("index.html", (err, data) => {
+      if (err) {
+        res.writeHead(500);
+        return res.end("Error loading index.html");
+      }
+      res.writeHead(200, { "Content-Type": "text/html" });
       res.end(data);
     });
-  } else if (req.url === '/result') {
-    // Send the math result
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end(mathResult.toString());
+    return;
   }
+
+  // 404
+  res.writeHead(404);
+  res.end("Not found");
 });
 
-server.listen(3000, () => {
-  console.log('Server running on http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
