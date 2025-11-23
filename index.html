@@ -275,8 +275,8 @@
 
         const MAX_FILE_SIZE = 16 * 1024 * 1024; // 16 MB
         
-        // استخدام endpoints نسبية للعمل على أي domain
-        const API_BASE = window.location.origin;
+        // استخدام رابط Railway أو الرابط الحالي
+        const API_BASE = 'https://node-production-9a9d.up.railway.app';
 
         // عند اختيار ملف
         fileInput.addEventListener('change', function() {
